@@ -12,22 +12,22 @@ set(CMAKE_ENABLE_EXPORTS 1)
 
 include(FetchContent)
 
-# Fetching GoogleTest 1.11.0 for unit testing
+# Fetching GoogleTest 1.12.1 for unit testing
 FetchContent_Declare(
   googletest
-  URL https://github.com/google/googletest/archive/8d51ffdfab10b3fba636ae69bc03da4b54f8c235.zip
+  URL https://github.com/google/googletest/archive/58d77fa8070e8cec2dc1ed015d66b454c8d78850.zip
 )
 
 # Fetching Async-BSD-Socket-Lib for network abstraction
 FetchContent_Declare(
   Async-BSD-Socket-Lib
-  URL https://github.com/langroodi/Async-BSD-Socket-Lib/archive/96b00d3a33fe03dfb3d7606fe9fcc28488e9e431.zip
+  URL https://github.com/langroodi/Async-BSD-Socket-Lib/archive/2fe1f151c109a89e245529954d3f8d969fbedfd2.zip
 )
 
 # Fetching  OBD-II-Emulator for OBD2 CAN bus communication
 FetchContent_Declare(
   OBD-II-Emulator
-  URL https://github.com/langroodi/OBD-II-Emulator/archive/da922b9c02f5e4d1db6236ccd1d482fc4326bfba.zip
+  URL https://github.com/langroodi/OBD-II-Emulator/archive/26537a1ad495e69353e16b3e32683f5e5fe8bcc1.zip
 )
 
 FetchContent_MakeAvailable(
@@ -94,6 +94,12 @@ set(source_ara_exec_helper_dir
 set(source_ara_diag_dir
   "${CMAKE_SOURCE_DIR}/src/ara/diag")
 
+set(source_ara_diag_routing_dir
+  "${CMAKE_SOURCE_DIR}/src/ara/diag/routing")
+
+set(source_ara_diag_debouncing_dir
+  "${CMAKE_SOURCE_DIR}/src/ara/diag/debouncing")
+
 # Test Directories:
 
 set(test_ara_core_dir
@@ -134,6 +140,12 @@ set(test_ara_exec_helper_dir
 
 set(test_ara_diag_dir
   "${CMAKE_SOURCE_DIR}/test/ara/diag")
+
+set(test_ara_diag_routing_dir
+  "${CMAKE_SOURCE_DIR}/test/ara/diag/routing")
+
+set(test_ara_diag_debouncing_dir
+  "${CMAKE_SOURCE_DIR}/test/ara/diag/debouncing")
 
 ########################################################################
 
@@ -290,6 +302,43 @@ add_library(
   ${source_ara_diag_dir}/condition.cpp
   ${source_ara_diag_dir}/operation_cycle.h
   ${source_ara_diag_dir}/operation_cycle.cpp
+  ${source_ara_diag_dir}/conversation.h
+  ${source_ara_diag_dir}/conversation.cpp
+  ${source_ara_diag_dir}/diag_error_domain.h
+  ${source_ara_diag_dir}/diag_error_domain.cpp
+  ${source_ara_diag_dir}/generic_uds_service.h
+  ${source_ara_diag_dir}/security_access.h
+  ${source_ara_diag_dir}/security_access.cpp
+  ${source_ara_diag_dir}/download.h
+  ${source_ara_diag_dir}/download.cpp
+  ${source_ara_diag_dir}/upload.h
+  ${source_ara_diag_dir}/upload.cpp
+  ${source_ara_diag_dir}/ecu_reset_request.h
+  ${source_ara_diag_dir}/ecu_reset_request.cpp
+  ${source_ara_diag_dir}/generic_routine.h
+  ${source_ara_diag_dir}/generic_routine.cpp
+  ${source_ara_diag_dir}/monitor.h
+  ${source_ara_diag_dir}/monitor.cpp
+  ${source_ara_diag_routing_dir}/routable_uds_service.h
+  ${source_ara_diag_routing_dir}/routable_uds_service.cpp
+  ${source_ara_diag_routing_dir}/uds_service_router.h
+  ${source_ara_diag_routing_dir}/uds_service_router.cpp
+  ${source_ara_diag_routing_dir}/delay_timer.h
+  ${source_ara_diag_routing_dir}/delay_timer.cpp
+  ${source_ara_diag_routing_dir}/transfer_data.h
+  ${source_ara_diag_routing_dir}/transfer_data.cpp
+  ${source_ara_diag_routing_dir}/request_transfer_exit.h
+  ${source_ara_diag_routing_dir}/request_transfer_exit.cpp
+  ${source_ara_diag_routing_dir}/nrc_exception.h
+  ${source_ara_diag_routing_dir}/nrc_exception.cpp
+  ${source_ara_diag_routing_dir}/request_transfer.h
+  ${source_ara_diag_routing_dir}/request_transfer.cpp
+  ${source_ara_diag_debouncing_dir}/debouncer.h
+  ${source_ara_diag_debouncing_dir}/debouncer.cpp
+  ${source_ara_diag_debouncing_dir}/counter_based_debouncer.h
+  ${source_ara_diag_debouncing_dir}/counter_based_debouncer.cpp
+  ${source_ara_diag_debouncing_dir}/timer_based_debouncer.h
+  ${source_ara_diag_debouncing_dir}/timer_based_debouncer.cpp
 )
 
 target_link_libraries(
@@ -359,6 +408,22 @@ if(build_tests)
     ${test_ara_diag_dir}/dtc_information_test.cpp
     ${test_ara_diag_dir}/condition_test.cpp
     ${test_ara_diag_dir}/operation_cycle_test.cpp
+    ${test_ara_diag_dir}/conversation_test.cpp
+    ${test_ara_diag_dir}/diag_error_domain_test.cpp
+    ${test_ara_diag_dir}/generic_uds_service_test.cpp
+    ${test_ara_diag_dir}/security_access_test.cpp
+    ${test_ara_diag_dir}/ecu_reset_request_test.cpp
+    ${test_ara_diag_dir}/generic_routine_test.cpp
+    ${test_ara_diag_dir}/monitor_test.cpp
+    ${test_ara_diag_routing_dir}/testable_uds_service.h
+    ${test_ara_diag_routing_dir}/uds_service_router_test.cpp
+    ${test_ara_diag_routing_dir}/delay_timer_test.cpp
+    ${test_ara_diag_routing_dir}/transfer_data_test.cpp
+    ${test_ara_diag_routing_dir}/request_transfer_exit_test.cpp
+    ${test_ara_diag_routing_dir}/nrc_exception_test.cpp
+    ${test_ara_diag_routing_dir}/request_transfer_test.cpp
+    ${test_ara_diag_debouncing_dir}/counter_based_debouncer_test.cpp
+    ${test_ara_diag_debouncing_dir}/timer_based_debouncer_test.cpp
   )
 
   target_link_libraries(

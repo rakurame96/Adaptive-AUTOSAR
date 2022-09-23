@@ -1,45 +1,16 @@
 #ifndef MONITOR_H
 #define MONITOR_H
 
-#include <stdint.h>
 #include <functional>
 #include "../core/instance_specifier.h"
 #include "../core/result.h"
+#include "./debouncing/counter_based_debouncer.h"
+#include "./debouncing/timer_based_debouncer.h"
 
 namespace ara
 {
     namespace diag
     {
-        /// @brief Contour-based debouncing parameters
-        struct CounterBased
-        {
-            /// @brief Threshold to report failure
-            int16_t failedThreshold;
-            /// @brief Threshold to report passing
-            int16_t passedThreshold;
-            /// @brief Debounce counter increment step
-            uint16_t failedStepsize;
-            /// @brief Debounce counter decrement step
-            uint16_t passedStepsize;
-            /// @brief Debounce counter jump on a pre-failed report
-            int16_t failedJumpValue;
-            /// @brief Debounce counter jump on a pre-passed report
-            int16_t passedJumpValue;
-            /// @brief Indicates whether debounce counter should jump or not on a pre-failed report
-            bool useJumpToFailed;
-            /// @brief Indicates whether debounce counter should jump or not on a pre-passed report
-            bool useJumpToPassed;
-        };
-
-        /// @brief Time-based debouncing parameters
-        struct TimeBased
-        {
-            /// @brief Time threshold in milliseconds to report passing
-            uint32_t passedMs;
-            /// @brief Time threshold in milliseconds to report failure
-            uint32_t failedMs;
-        };
-
         /// @brief Monitoring re-initialization reason
         enum class InitMonitorReason : uint32_t
         {
@@ -63,24 +34,28 @@ namespace ara
         };
 
         /// @brief A class to monitor the correct functionality of a system part
+        /// @note In constrast with the ARA standard, internal debouncing is not supported.
         class Monitor final
         {
-        public:
-            /// @brief Monitor constructor with an internal debouncing
-            /// @param specifier Instance specifer that owns the monitor
-            /// @param initMonitor Monitor re-initialization callback
-            /// @param getFaultDetectionCounter Delegate to get the event Fault Detection Counter (FDC)
-            Monitor(
-                const ara::core::InstanceSpecifier &specifier,
-                std::function<void(InitMonitorReason)> initMonitor,
-                std::function<int8_t()> getFaultDetectionCounter);
+        private:
+            const core::InstanceSpecifier &mSpecifier;
+            const std::function<void(InitMonitorReason)> mInitMonitor;
+            bool mOffered;
+            debouncing::Debouncer *mDebouncer;
 
+            Monitor(
+                const core::InstanceSpecifier &specifier,
+                std::function<void(InitMonitorReason)> initMonitor);
+
+            void onEventStatusChanged(bool passed);
+
+        public:
             /// @brief Monitor constructor with a counter-based debouncing
             /// @param specifier Instance specifer that owns the monitor
             /// @param initMonitor Monitor re-initialization callback
             /// @param defaultValues Counter-based debouncing default parameters
             Monitor(
-                const ara::core::InstanceSpecifier &specifier,
+                const core::InstanceSpecifier &specifier,
                 std::function<void(InitMonitorReason)> initMonitor,
                 CounterBased defaultValues);
 
@@ -89,9 +64,11 @@ namespace ara
             /// @param initMonitor Monitor re-initialization callback
             /// @param defaultValues Time-based debouncing default parameters
             Monitor(
-                const ara::core::InstanceSpecifier &specifier,
+                const core::InstanceSpecifier &specifier,
                 std::function<void(InitMonitorReason)> initMonitor,
                 TimeBased defaultValues);
+
+            ~Monitor() noexcept;
 
             /// @brief Report a monitor action
             /// @param action Latest diagnostic monitor action
@@ -99,7 +76,7 @@ namespace ara
 
             /// @brief Start offering monitoring requests handling
             /// @returns Error result if the handler has been already offered
-            ara::core::Result<void> Offer();
+            core::Result<void> Offer();
 
             /// @brief Stop offering monitoring requests handling
             void StopOffer();
